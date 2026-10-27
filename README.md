@@ -1,5 +1,7 @@
 # Strates — Nutrition Tracking & Workout Logging PWA
 
+>**Demo Video:**[https://drive.google.com/file/d/1U0sPv6E5GwTVdb4wY2ZD7-Zp40lLvEaY/view?usp=sharing](https://drive.google.com/file/d/1U0sPv6E5GwTVdb4wY2ZD7-Zp40lLvEaY/view?usp=sharing)
+
 Strates is a high-performance progressive web application tailored for serious gym-goers and athletes. It unifies daily nutritional macro tracking and live workout logging into a single cohesive interface, replacing the need to juggle separate apps.
 
 Built with **Next.js 16 (App Router)**, **TypeScript**, **Tailwind CSS v4**, **MongoDB (Atlas)** with **Mongoose**, **Custom JWT Authentication**, **MongoDB GridFS** file storage, **Zod**, and **Vitest**.
