@@ -1,26 +1,287 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer base {
+  * {
+    border-color: #000000;
+  }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  html {
+    color-scheme: light;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: #dcdfe5;
+    color: #000000;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Comic Panel Containers (Image 2 Comic Style UI Kit) */
+.glass-card,
+.comic-panel {
+  background-color: #ffffff !important;
+  border: 2.5px solid #000000 !important;
+  border-radius: 18px !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  color: #000000 !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.glass-card-hover:hover,
+.comic-panel-hover:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0px #000000 !important;
+}
+
+/* Comic Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 2.5px solid #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #000000 !important;
+}
+
+.btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000000 !important;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none !important;
+}
+
+/* Primary Button */
+.btn-primary {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: #262626 !important;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: #f3f4f6 !important;
+}
+
+/* Accent Button */
+.btn-accent {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+.btn-accent:hover:not(:disabled) {
+  background-color: #f3f4f6 !important;
+}
+
+/* Danger Button */
+.btn-danger {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: #dc2626 !important;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8125rem;
+  border-radius: 10px;
+}
+
+.btn-icon {
+  padding: 0.5rem;
+  border-radius: 10px;
+}
+
+/* Input Fields */
+.input-field {
+  background-color: #ffffff !important;
+  border: 2.5px solid #000000 !important;
+  border-radius: 14px !important;
+  padding: 0.7rem 1rem;
+  color: #000000 !important;
+  font-weight: 600;
+  box-shadow: 3px 3px 0px #000000 !important;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  width: 100%;
+  font-size: 0.9375rem;
+}
+
+.input-field:focus {
+  outline: none;
+  box-shadow: 4px 4px 0px #000000 !important;
+  transform: translate(-1px, -1px);
+}
+
+.input-field::placeholder {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Labels */
+.label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #000000 !important;
+  margin-bottom: 0.375rem;
+}
+
+/* Badges / Chips (Comic style) */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 2px solid #000000 !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+}
+
+.badge-pr {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.badge-warning {
+  background-color: #fef08a !important;
+  color: #000000 !important;
+}
+
+.badge-danger {
+  background-color: #fecaca !important;
+  color: #000000 !important;
+}
+
+.badge-pending {
+  background-color: #e5e7eb !important;
+  color: #000000 !important;
+}
+
+.badge-approved {
+  background-color: #bbf7d0 !important;
+  color: #000000 !important;
+}
+
+.badge-rejected {
+  background-color: #fecaca !important;
+  color: #000000 !important;
+}
+
+/* Progress bar (Comic style) */
+.progress-bar {
+  height: 0.75rem;
+  border-radius: 9999px;
+  background-color: #ffffff !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background-color: #000000 !important;
+  transition: width 0.4s ease-out;
+}
+
+/* Tables */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 2.5px solid #000000 !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+  box-shadow: 4px 4px 0px #000000 !important;
+  background-color: #ffffff !important;
+}
+
+.data-table th {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000000 !important;
+  background-color: #f3f4f6 !important;
+  border-bottom: 2.5px solid #000000 !important;
+}
+
+.data-table td {
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  border-bottom: 1.5px solid #e5e7eb;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background-color: #f9fafb !important;
+}
+
+/* Global text color overrides so no dark classes bleed through */
+.text-brand-100 { color: #000000 !important; }
+.text-brand-200 { color: #111827 !important; }
+.text-brand-300 { color: #374151 !important; }
+.text-brand-400 { color: #4b5563 !important; }
+.text-brand-500 { color: #6b7280 !important; }
+
+/* Sub-card backgrounds */
+.bg-surface-900,
+.bg-surface-900\/80,
+.bg-surface-900\/90 {
+  background-color: #f3f4f6 !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+
+.bg-surface-800 {
+  background-color: #ffffff !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+
+.border-surface-700 {
+  border-color: #000000 !important;
+}
+
+/* Page transitions */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: fadeIn 0.2s ease-out;
 }
