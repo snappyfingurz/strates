@@ -334,7 +334,6 @@ async function seed() {
   console.log('Generating 3 weeks of historical weigh-ins, meals, and workouts...');
   const foodLogsToInsert = [];
   const weightsToInsert = [];
-  const workoutSessionsToInsert = [];
   const workoutSetsToInsert = [];
 
   let currentWeight = 84.5;

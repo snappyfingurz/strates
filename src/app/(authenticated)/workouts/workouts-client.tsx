@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition, useSyncExternalStore } from 'react';
 import { startWorkoutSession, finishWorkoutSession, logWorkoutSet, deleteWorkoutSet } from './actions';
 import type { Exercise, WorkoutSession, WorkoutSet } from '@/lib/types';
 import { estimate1RM, getProgressiveOverloadAdvice, calculateWorkoutVolume } from '@/lib/workout';
@@ -26,6 +26,14 @@ interface WorkoutSetWithExercise extends WorkoutSet {
 
 interface WorkoutSessionWithSets extends WorkoutSession {
   workout_sets?: WorkoutSetWithExercise[];
+}
+const emptySubscribe = () => () => {};
+function useIsClient() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 }
 
 interface WorkoutsClientProps {
@@ -94,11 +102,7 @@ export function WorkoutsClient({
 
   // Growth graph state
   const [chartExerciseFilter, setChartExerciseFilter] = useState<string>('all');
-  const [isMounted, setIsMounted] = useState<boolean>(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useIsClient();
 
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isPending, startTransition] = useTransition();

@@ -162,3 +162,26 @@ npm run dev
 ### Seeded Credentials
 - **Demo User**: `demo@strates.fit` / `DemoPassword123!`
 - **Admin User**: `admin@strates.fit` / `AdminPassword123!`
+
+---
+
+## Deploying to Vercel
+
+1. **Push your code to GitHub / GitLab / Bitbucket**.
+2. **Import project into Vercel**:
+   - Go to [vercel.com/new](https://vercel.com/new) and select your repository.
+   - Framework preset will automatically detect **Next.js**.
+3. **Configure Environment Variables** in Vercel Project Settings:
+   - `MONGODB_URI`: Your MongoDB Atlas connection URI (e.g. `mongodb+srv://<user>:<password>@cluster0.xxx.mongodb.net/strates?retryWrites=true&w=majority`).
+   - `JWT_SECRET`: A secure 32+ character random secret string for JWT session signing.
+   - *(Optional)* `VISION_LLM_API_KEY`, `VISION_LLM_PROVIDER`, `VISION_LLM_MODEL`: If using AI label scanning.
+4. **MongoDB Atlas Network Access**:
+   - In MongoDB Atlas, go to **Network Access** > **IP Access List**.
+   - Add `0.0.0.0/0` (Allow access from anywhere) so Vercel Serverless Functions can connect to Atlas.
+5. **Seed Production / Atlas Database**:
+   - Before or after first deployment, run the seed script locally pointing to your Atlas connection string:
+     ```bash
+     MONGODB_URI="your_atlas_connection_string" npm run seed
+     ```
+6. **Click Deploy**: Vercel will build and deploy your application.
+

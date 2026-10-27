@@ -146,7 +146,7 @@ export function FoodsClient({ foods, todayLogs, currentDate }: FoodsClientProps)
   }
 
   const livePortionMacros = selectedFood
-    ? calculatePortionNutrition(selectedFood, logGrams)
+    ? calculatePortionNutrition(selectedFood, parseFloat(logGrams) || 0)
     : null;
 
   return (
@@ -326,7 +326,7 @@ export function FoodsClient({ foods, todayLogs, currentDate }: FoodsClientProps)
 
                 <button
                   type="submit"
-                  disabled={isPending || logGrams <= 0}
+                  disabled={isPending || (parseFloat(logGrams) || 0) <= 0}
                   className="btn btn-accent w-full"
                 >
                   {isPending ? 'Logging…' : `Add to ${MEALS.find(m => m.key === selectedMeal)?.label}`}

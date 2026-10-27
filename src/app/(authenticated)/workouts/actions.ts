@@ -5,7 +5,7 @@ import { connectDB } from '@/lib/db';
 import { WorkoutSession } from '@/lib/models/WorkoutSession';
 import { WorkoutSet } from '@/lib/models/WorkoutSet';
 import { workoutSetSchema, workoutSessionSchema } from '@/lib/schemas';
-import { estimate1RM, checkIsPR } from '@/lib/workout';
+import { estimate1RM } from '@/lib/workout';
 import { revalidatePath } from 'next/cache';
 import mongoose from 'mongoose';
 
