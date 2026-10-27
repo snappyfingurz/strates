@@ -53,7 +53,6 @@ const WorkoutSetSchema = new Schema<IWorkoutSet>(
     rpe: {
       type: Number,
       min: 1,
-      max: 10,
       default: null,
     },
     isWarmup: {

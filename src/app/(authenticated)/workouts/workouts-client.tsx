@@ -323,12 +323,11 @@ export function WorkoutsClient({
                 </div>
 
                 <div>
-                  <label className="label">RPE (1-10)</label>
+                  <label className="label">RPE (10-12 reps are optimum)</label>
                   <input
                     type="number"
                     step="0.5"
                     min={1}
-                    max={10}
                     value={rpe}
                     placeholder="8"
                     onFocus={(e) => e.target.select()}

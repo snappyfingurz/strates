@@ -11,6 +11,8 @@ import { revalidatePath } from 'next/cache';
 import mongoose from 'mongoose';
 import type { ActivityLevel, Goal, Sex } from '@/lib/types';
 
+import { User } from '@/lib/models/User';
+
 export type ActionResponse = {
   error?: string;
   success?: string;
@@ -35,9 +37,14 @@ export async function updateProfile(formData: FormData): Promise<ActionResponse>
   }
 
   await connectDB();
+  const userObjId = new mongoose.Types.ObjectId(session.userId);
 
-  await Profile.findOneAndUpdate(
-    { userId: new mongoose.Types.ObjectId(session.userId) },
+  if (parsed.data.display_name) {
+    await User.findByIdAndUpdate(userObjId, { displayName: parsed.data.display_name });
+  }
+
+  const updatedProfile = await Profile.findOneAndUpdate(
+    { userId: userObjId },
     {
       $set: {
         sex: parsed.data.sex,
@@ -51,9 +58,42 @@ export async function updateProfile(formData: FormData): Promise<ActionResponse>
     { upsert: true, new: true }
   );
 
+  // Auto-recalculate target if user has latest weight reading and complete biometric parameters
+  const latestWeight = await BodyWeight.findOne({ userId: userObjId })
+    .sort({ measuredOn: -1 })
+    .lean();
+
+  if (
+    latestWeight &&
+    updatedProfile.sex &&
+    updatedProfile.birthYear &&
+    updatedProfile.heightCm &&
+    updatedProfile.activityLevel &&
+    updatedProfile.goal
+  ) {
+    const targets = calculateDailyTargets({
+      sex: updatedProfile.sex as Sex,
+      birthYear: updatedProfile.birthYear,
+      heightCm: Number(updatedProfile.heightCm),
+      weightKg: Number(latestWeight.weightKg),
+      activityLevel: updatedProfile.activityLevel as ActivityLevel,
+      goal: updatedProfile.goal as Goal,
+    });
+
+    const today = new Date().toISOString().split('T')[0];
+
+    await DailyTarget.create({
+      userId: userObjId,
+      effectiveFrom: today,
+      kcal: targets.targetKcal,
+      proteinG: targets.proteinG,
+      reason: `Updated for goal: ${updatedProfile.goal}`,
+    });
+  }
+
   revalidatePath('/profile');
   revalidatePath('/dashboard');
-  return { success: 'Profile updated successfully.' };
+  return { success: 'Profile and daily nutrition targets updated successfully.' };
 }
 
 export async function logBodyWeight(formData: FormData): Promise<ActionResponse> {

@@ -37,14 +37,14 @@ describe('Zod schemas validation', () => {
     expect(valid.success).toBe(true);
   });
 
-  it('validates workout set inputs', () => {
+  it('validates workout set inputs and allows rpe > 10', () => {
     const valid = workoutSetSchema.safeParse({
       session_id: '99999999-9999-9999-9999-999999999999',
       exercise_id: '88888888-8888-8888-8888-888888888888',
       set_no: 1,
       weight_kg: 100,
       reps: 8,
-      rpe: 8.5,
+      rpe: 12,
       is_warmup: false,
       client_id: 'local-set-1',
     });

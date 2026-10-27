@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { updateProfile, logBodyWeight, recalculateTargets } from './actions';
-import type { BodyWeight, DailyTarget, Profile } from '@/lib/types';
+import { calculateDailyTargets } from '@/lib/targets';
+import type { ActivityLevel, BodyWeight, DailyTarget, Goal, Profile, Sex } from '@/lib/types';
 
 interface ProfileClientProps {
   profile: Profile | null;
@@ -25,14 +26,56 @@ export function ProfileClient({
   const [isWeightPending, startWeightTransition] = useTransition();
   const [isTargetPending, startTargetTransition] = useTransition();
 
+  const [userOverrides, setUserOverrides] = useState<{
+    display_name?: string;
+    sex?: Sex | '';
+    birth_year?: number | '';
+    height_cm?: number | '';
+    activity_level?: ActivityLevel;
+    goal?: Goal;
+  }>({});
+
+  const displayName = userOverrides.display_name !== undefined ? userOverrides.display_name : (profile?.display_name ?? '');
+  const sex = userOverrides.sex !== undefined ? userOverrides.sex : ((profile?.sex as Sex) || '');
+  const birthYear = userOverrides.birth_year !== undefined ? userOverrides.birth_year : (profile?.birth_year ?? 1998);
+  const heightCm = userOverrides.height_cm !== undefined ? userOverrides.height_cm : (profile?.height_cm ?? '');
+  const activityLevel = userOverrides.activity_level !== undefined ? userOverrides.activity_level : ((profile?.activity_level as ActivityLevel) || 'moderate');
+  const goal = userOverrides.goal !== undefined ? userOverrides.goal : ((profile?.goal as Goal) || 'maintain');
+
+  const liveTarget = useMemo(() => {
+    if (!latestWeight || !sex || !birthYear || !heightCm || !activityLevel || !goal) {
+      return null;
+    }
+    return calculateDailyTargets({
+      sex: sex as Sex,
+      birthYear: Number(birthYear),
+      heightCm: Number(heightCm),
+      weightKg: Number(latestWeight.weight_kg),
+      activityLevel: activityLevel as ActivityLevel,
+      goal: goal as Goal,
+    });
+  }, [latestWeight, sex, birthYear, heightCm, activityLevel, goal]);
+
+  const hasUnsavedGoalOrProfile = Boolean(
+    (profile?.goal && goal !== profile.goal) ||
+    (profile?.activity_level && activityLevel !== profile.activity_level) ||
+    (profile?.sex && sex !== profile.sex) ||
+    (profile?.height_cm && Number(heightCm) !== Number(profile.height_cm)) ||
+    (profile?.birth_year && Number(birthYear) !== Number(profile.birth_year))
+  );
+
   const todayStr = new Date().toISOString().split('T')[0];
 
   function handleProfileSubmit(formData: FormData) {
     setProfileMsg(null);
     startProfileTransition(async () => {
       const res = await updateProfile(formData);
-      if (res.error) setProfileMsg({ type: 'error', text: res.error });
-      else if (res.success) setProfileMsg({ type: 'success', text: res.success });
+      if (res.error) {
+        setProfileMsg({ type: 'error', text: res.error });
+      } else if (res.success) {
+        setUserOverrides({});
+        setProfileMsg({ type: 'success', text: res.success });
+      }
     });
   }
 
@@ -80,7 +123,8 @@ export function ProfileClient({
                 <input
                   type="text"
                   name="display_name"
-                  defaultValue={profile?.display_name ?? ''}
+                  value={displayName}
+                  onChange={(e) => setUserOverrides((prev) => ({ ...prev, display_name: e.target.value }))}
                   className="input-field"
                   placeholder="e.g. Alex"
                 />
@@ -90,7 +134,8 @@ export function ProfileClient({
                 <label className="label">Biological Sex</label>
                 <select
                   name="sex"
-                  defaultValue={profile?.sex ?? ''}
+                  value={sex}
+                  onChange={(e) => setUserOverrides((prev) => ({ ...prev, sex: e.target.value as Sex }))}
                   className="input-field"
                 >
                   <option value="">Select Sex</option>
@@ -104,7 +149,8 @@ export function ProfileClient({
                 <input
                   type="number"
                   name="birth_year"
-                  defaultValue={profile?.birth_year ?? 1998}
+                  value={birthYear}
+                  onChange={(e) => setUserOverrides((prev) => ({ ...prev, birth_year: e.target.value ? Number(e.target.value) : '' }))}
                   min={1920}
                   max={new Date().getFullYear()}
                   className="input-field"
@@ -117,7 +163,8 @@ export function ProfileClient({
                   type="number"
                   step="0.5"
                   name="height_cm"
-                  defaultValue={profile?.height_cm ?? ''}
+                  value={heightCm}
+                  onChange={(e) => setUserOverrides((prev) => ({ ...prev, height_cm: e.target.value ? Number(e.target.value) : '' }))}
                   placeholder="e.g. 178"
                   className="input-field"
                 />
@@ -127,7 +174,8 @@ export function ProfileClient({
                 <label className="label">Activity Level</label>
                 <select
                   name="activity_level"
-                  defaultValue={profile?.activity_level ?? 'moderate'}
+                  value={activityLevel}
+                  onChange={(e) => setUserOverrides((prev) => ({ ...prev, activity_level: e.target.value as ActivityLevel }))}
                   className="input-field"
                 >
                   <option value="sedentary">Sedentary (desk job, little exercise)</option>
@@ -141,7 +189,8 @@ export function ProfileClient({
                 <label className="label">Fitness Goal</label>
                 <select
                   name="goal"
-                  defaultValue={profile?.goal ?? 'maintain'}
+                  value={goal}
+                  onChange={(e) => setUserOverrides((prev) => ({ ...prev, goal: e.target.value as Goal }))}
                   className="input-field"
                 >
                   <option value="cut">Cut (-500 kcal / high protein)</option>
@@ -151,7 +200,7 @@ export function ProfileClient({
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 flex items-center gap-4">
               <button
                 type="submit"
                 disabled={isProfilePending}
@@ -159,6 +208,11 @@ export function ProfileClient({
               >
                 {isProfilePending ? 'Saving...' : 'Save Profile Changes'}
               </button>
+              {hasUnsavedGoalOrProfile && (
+                <span className="text-xs text-brand-300 bg-brand-500/10 px-2.5 py-1 rounded-md border border-brand-500/20">
+                  Goal changed: Save to update dashboard
+                </span>
+              )}
             </div>
           </form>
         </div>
@@ -192,20 +246,34 @@ export function ProfileClient({
             </div>
           )}
 
-          {currentTarget ? (
+          {liveTarget || currentTarget ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
               <div className="bg-surface-800/80 p-4 rounded-xl border border-surface-600/40">
                 <p className="text-xs text-brand-400 uppercase font-semibold">Daily Calories</p>
-                <p className="text-2xl font-bold text-brand-100 mt-1">{Math.round(currentTarget.kcal)} <span className="text-xs text-brand-500 font-normal">kcal</span></p>
+                <p className="text-2xl font-bold text-brand-100 mt-1">
+                  {liveTarget ? liveTarget.targetKcal : Math.round(currentTarget!.kcal)}{' '}
+                  <span className="text-xs text-brand-500 font-normal">kcal</span>
+                </p>
               </div>
               <div className="bg-surface-800/80 p-4 rounded-xl border border-surface-600/40">
                 <p className="text-xs text-brand-400 uppercase font-semibold">Daily Protein</p>
-                <p className="text-2xl font-bold text-accent-400 mt-1">{Math.round(currentTarget.protein_g)} <span className="text-xs text-brand-500 font-normal">g</span></p>
+                <p className="text-2xl font-bold text-accent-400 mt-1">
+                  {liveTarget ? liveTarget.proteinG : Math.round(currentTarget!.protein_g)}{' '}
+                  <span className="text-xs text-brand-500 font-normal">g</span>
+                </p>
               </div>
               <div className="col-span-2 sm:col-span-1 bg-surface-800/80 p-4 rounded-xl border border-surface-600/40">
                 <p className="text-xs text-brand-400 uppercase font-semibold">Target Basis</p>
-                <p className="text-sm font-medium text-brand-300 mt-1 truncate">{currentTarget.reason}</p>
-                <p className="text-xs text-brand-500 mt-0.5">From {currentTarget.effective_from}</p>
+                <p className="text-sm font-medium text-brand-300 mt-1 truncate">
+                  {hasUnsavedGoalOrProfile
+                    ? `Live Preview: ${goal.toUpperCase()} (${latestWeight?.weight_kg ?? '--'}kg)`
+                    : currentTarget?.reason || `Calculated for ${goal}`}
+                </p>
+                <p className="text-xs text-brand-500 mt-0.5">
+                  {hasUnsavedGoalOrProfile
+                    ? 'Click "Save Profile Changes" to persist'
+                    : currentTarget?.effective_from ? `From ${currentTarget.effective_from}` : todayStr}
+                </p>
               </div>
             </div>
           ) : (

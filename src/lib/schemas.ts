@@ -99,7 +99,7 @@ export const workoutSetSchema = z.object({
   set_no: z.number().int().positive(),
   weight_kg: z.number().min(0).max(1000),
   reps: z.number().int().positive().max(100),
-  rpe: z.number().min(1).max(10).step(0.5).nullable().optional(),
+  rpe: z.number().min(1).step(0.5).nullable().optional(),
   is_warmup: z.boolean().default(false),
   client_id: z.string().min(1).max(100),
 });
